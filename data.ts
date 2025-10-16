@@ -10,6 +10,8 @@ export interface ApiResponse {
   queries?: string[];
 }
 
+const shopId = 'westside-barbell.myshopify.com';
+
 export const fetchData = async (startDate: string, endDate: string): Promise<ApiResponse> => {
   // Queries to fetch product analytics and blended stats
   const QUERIES: string[] = [
@@ -53,11 +55,27 @@ export const fetchData = async (startDate: string, endDate: string): Promise<Api
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
+      shopId,
       startDate,
       endDate,
       queries: QUERIES,
-      shopId: 'westside-barbell.myshopify.com',
       dynamicData: true,
+    }),
+  });
+
+  return data.json();
+}
+
+export const fetchInsights = async (dataForInsights: ApiResponse, prompt: string): Promise<{ insights: string }> => {
+  const data = await fetch('http://localhost/api/v2/shnel/get-insights', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      shopId,   
+      prompt, 
+      data: dataForInsights,
     }),
   });
 
