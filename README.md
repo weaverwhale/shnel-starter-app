@@ -42,6 +42,7 @@ This project uses:
 - Tailwind CSS v4 (via Vite plugin)
 - Recharts (for data visualization)
 - Lucide React (for icons)
+- React Markdown (for markdown rendering)
 
 ## Styling with Tailwind CSS
 
