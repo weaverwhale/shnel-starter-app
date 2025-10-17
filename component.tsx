@@ -100,8 +100,8 @@ const columnarToRows = <T,>(columnarData: ColumnData[]): T[] => {
 
 // Components
 const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon: Icon, iconColor, trend, subtitle }) => (
-  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex items-center gap-4">
-    <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: iconColor }}>
+  <div className="bg-white p-6 rounded-lg shadow flex items-center gap-4">
+    <div className="w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: iconColor }}>
       <Icon size={24} color="white" />
     </div>
     <div className="flex-1">
@@ -121,8 +121,8 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon: Icon, iconC
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-gray-900/95 backdrop-blur-sm px-4 py-3 rounded-lg text-white text-sm shadow-xl">
-        <p className="font-semibold mb-2 pb-2 border-b border-white/20">{label || ''}</p>
+      <div className="bg-gray-900 px-4 py-3 rounded-lg text-white text-sm shadow">
+        <p className="font-semibold mb-2 pb-2 border-b border-gray-700">{label || ''}</p>
         {payload.map((entry, index) => (
           <p key={index} className="my-1" style={{ color: entry.color }}>
             {entry.name}: {entry.name.includes('Sales') || entry.name.includes('sales') 
@@ -154,11 +154,13 @@ const App: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
+      setInsights(null); // Clear previous insights
       const fetchedData = await fetchData(startDate, endDate);
       setData(fetchedData);
       console.log('data from iframe', fetchedData);
+      setLoading(false);
       
-      // Fetch insights after getting the data
+      // Fetch insights after getting the data (non-blocking)
       if (fetchedData && fetchedData.data && fetchedData.data.length > 0) {
         setLoadingInsights(true);
         try {
@@ -176,7 +178,6 @@ const App: React.FC = () => {
       console.error('Error fetching data:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch data';
       setError(errorMessage);
-    } finally {
       setLoading(false);
     }
   };
@@ -189,14 +190,14 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-8">
+      <div className="min-h-screen bg-gray-100 p-8">
         <div className="max-w-7xl mx-auto">
-          <header className="text-center mb-12 text-white">
-            <h1 className="text-4xl font-bold mb-2 drop-shadow-md">Sales Analytics Dashboard</h1>
-            <p className="text-lg opacity-90 font-light">Loading your business insights...</p>
+          <header className="text-center mb-12">
+            <h1 className="text-4xl font-bold mb-2 text-gray-900">Sales Analytics Dashboard</h1>
+            <p className="text-lg text-gray-600">Loading your business insights...</p>
           </header>
           <div className="flex justify-center items-center min-h-[400px]">
-            <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
           </div>
         </div>
       </div>
@@ -205,12 +206,12 @@ const App: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-8">
+      <div className="min-h-screen bg-gray-100 p-8">
         <div className="max-w-7xl mx-auto">
-          <header className="text-center mb-12 text-white">
-            <h1 className="text-4xl font-bold mb-2 drop-shadow-md">Sales Analytics Dashboard</h1>
+          <header className="text-center mb-12">
+            <h1 className="text-4xl font-bold mb-2 text-gray-900">Sales Analytics Dashboard</h1>
           </header>
-          <div className="bg-white p-8 rounded-xl text-center text-red-500 font-medium shadow-xl">
+          <div className="bg-white p-8 rounded-lg text-center text-red-600 font-medium shadow">
             <p>Error: {error}</p>
           </div>
         </div>
@@ -220,12 +221,12 @@ const App: React.FC = () => {
 
   if (!data || !data.data || data.data.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-8">
+      <div className="min-h-screen bg-gray-100 p-8">
         <div className="max-w-7xl mx-auto">
-          <header className="text-center mb-12 text-white">
-            <h1 className="text-4xl font-bold mb-2 drop-shadow-md">Sales Analytics Dashboard</h1>
+          <header className="text-center mb-12">
+            <h1 className="text-4xl font-bold mb-2 text-gray-900">Sales Analytics Dashboard</h1>
           </header>
-          <div className="bg-white p-8 rounded-xl text-center text-red-500 font-medium shadow-xl">
+          <div className="bg-white p-8 rounded-lg text-center text-red-600 font-medium shadow">
             <p>No data available</p>
           </div>
         </div>
@@ -269,20 +270,20 @@ const App: React.FC = () => {
   const ordersTrend = latestMonth?.orders_growth || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-8">
+    <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-8 text-white">
-          <h1 className="text-4xl font-bold mb-2 drop-shadow-md">Sales Analytics Dashboard</h1>
-          <p className="text-lg opacity-90 font-light">
+        <header className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-2 text-gray-900">Sales Analytics Dashboard</h1>
+          <p className="text-lg text-gray-600">
             Product Performance & Sales Trends
           </p>
-          <p className="text-sm opacity-80 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             {formatDateForDisplay(startDate)} - {formatDateForDisplay(endDate)}
           </p>
         </header>
 
         {/* Date Picker */}
-        <div className="bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg mb-8">
+        <div className="bg-white p-6 rounded-lg shadow mb-8">
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <div className="flex items-center gap-2">
               <Calendar size={20} className="text-indigo-600" />
@@ -309,7 +310,7 @@ const App: React.FC = () => {
             <button
               onClick={loadData}
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold rounded-lg disabled:cursor-not-allowed"
             >
               <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
               {loading ? 'Loading...' : 'Update Data'}
@@ -352,25 +353,25 @@ const App: React.FC = () => {
         </div>
 
         {/* Insights Banner */}
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 p-6 rounded-xl mb-8 shadow-md">
+        <div className="bg-amber-50 border border-amber-200 p-6 rounded-lg mb-8 shadow">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
               <AlertCircle size={24} color="white" />
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-gray-900 mb-2">Key Insights</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                <div className="bg-white/70 p-3 rounded-lg">
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-600 mb-1">Best Selling Product</p>
                   <p className="font-semibold text-gray-900 text-sm">{topProducts[0]?.product_name}</p>
                   <p className="text-xs text-indigo-600 font-semibold">{formatNumber(topProducts[0]?.total_items_sold)} units</p>
                 </div>
-                <div className="bg-white/70 p-3 rounded-lg">
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-600 mb-1">Best Month (Sales)</p>
                   <p className="font-semibold text-gray-900 text-sm">{[...monthlyStats].sort((a, b) => b.total_sales - a.total_sales)[0]?.month}</p>
                   <p className="text-xs text-green-600 font-semibold">{formatCurrency([...monthlyStats].sort((a, b) => b.total_sales - a.total_sales)[0]?.total_sales)}</p>
                 </div>
-                <div className="bg-white/70 p-3 rounded-lg">
+                <div className="bg-white p-3 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-600 mb-1">Latest AOV</p>
                   <p className="font-semibold text-gray-900 text-sm">{formatCurrency(latestMonth?.avg_order_value || 0)}</p>
                   <p className="text-xs text-purple-600 font-semibold">{latestMonth?.month}</p>
@@ -382,7 +383,7 @@ const App: React.FC = () => {
 
         {/* AI-Generated Insights */}
         {loadingInsights && (
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 p-6 rounded-xl mb-8 shadow-md">
+          <div className="bg-indigo-50 border border-indigo-200 p-6 rounded-lg mb-8 shadow">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 border-4 border-indigo-300 border-t-indigo-600 rounded-full animate-spin"></div>
               <p className="text-indigo-700 font-medium">Generating AI insights from your data...</p>
@@ -391,19 +392,19 @@ const App: React.FC = () => {
         )}
         
         {insights && !loadingInsights && (
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 p-6 rounded-xl mb-8 shadow-md">
+          <div className="bg-indigo-50 border border-indigo-200 p-6 rounded-lg mb-8 shadow">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <TrendingUp size={24} color="white" />
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <span>AI-Powered Business Insights</span>
-                  <span className="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full">
+                  <span className="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded">
                     Generated by AI
                   </span>
                 </h3>
-                <div className="bg-white/90 p-6 rounded-lg shadow-sm overflow-hidden">
+                <div className="bg-white p-6 rounded-lg border border-gray-200 overflow-hidden">
                   <div className="markdown-content overflow-auto max-w-full break-words">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm, remarkMath]}
@@ -450,7 +451,7 @@ const App: React.FC = () => {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Top Products Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Top 10 Products by Items Sold</h2>
             <ResponsiveContainer width="100%" height={350}>
               <BarChart data={topProducts} layout="vertical">
@@ -470,7 +471,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Monthly Sales Trend */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Monthly Sales Trend</h2>
             <ResponsiveContainer width="100%" height={350}>
               <LineChart data={[...monthlyStats].reverse()}>
@@ -509,7 +510,7 @@ const App: React.FC = () => {
         {/* Additional Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Monthly Orders Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Monthly Orders & AOV</h2>
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={[...monthlyStats].reverse()}>
@@ -539,7 +540,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Discounts & Returns Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Sales vs Gross (Discounts/Returns)</h2>
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={[...monthlyStats].reverse()}>
@@ -563,7 +564,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Growth Trends */}
-        <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+        <div className="bg-white p-6 rounded-lg shadow mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Month-over-Month Growth Rates</h2>
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={[...monthlyStats].reverse().slice(1)}>
@@ -588,7 +589,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Detailed Products Table */}
-        <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+        <div className="bg-white p-6 rounded-lg shadow mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Top Products Detail</h2>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
@@ -614,7 +615,7 @@ const App: React.FC = () => {
                         <div className="flex items-center gap-3">
                           <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                             <div 
-                              className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-300" 
+                              className="h-full bg-indigo-600 rounded-full" 
                               style={{ width: `${itemPercent}%` }}
                             ></div>
                           </div>
@@ -630,7 +631,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Monthly Statistics Table */}
-        <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+        <div className="bg-white p-6 rounded-lg shadow mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Monthly Performance Details</h2>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
@@ -679,10 +680,10 @@ const App: React.FC = () => {
 
         {/* SQL Queries Section */}
         {data.queries && data.queries.length > 0 && (
-          <div className="bg-gray-50 border-2 border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
             <button
               onClick={() => setShowQueries(!showQueries)}
-              className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-100 transition-colors"
+              className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-100"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center">
@@ -697,11 +698,11 @@ const App: React.FC = () => {
             </button>
             
             {showQueries && (
-              <div className="px-6 py-4 bg-white border-t-2 border-gray-200">
+              <div className="px-6 py-4 bg-white border-t border-gray-200">
                 {data.queries.map((query: string, index: number) => (
                   <div key={index} className="mb-4 last:mb-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="inline-block px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full">
+                      <span className="inline-block px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded">
                         Query {index + 1}
                       </span>
                       <span className="text-xs text-gray-500">
